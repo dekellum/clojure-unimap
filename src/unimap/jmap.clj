@@ -1,4 +1,4 @@
-(ns unimap-clojure.core)
+(ns unimap.jmap)
 
 (deftype JavaMapWrapper [^java.util.Map jmap]) ;forward declare
 

@@ -1,8 +1,7 @@
 (set! *warn-on-reflection* true)
 
-(ns unimap-clojure.core-test
-  (:use clojure.test
-        unimap-clojure.core))
+(ns unimap.jmap-test
+  (:use clojure.test unimap.jmap))
 
 (defn sort-seq [coll]
   (sort (seq coll)))
