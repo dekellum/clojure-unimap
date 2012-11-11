@@ -5,10 +5,10 @@
 (defn wrap-jmap
   "Create a mutable but clojure accessable wrapper around a new or
    provided java.util.HashMap. With 2, 4, etc. arguments associates
-   key,values with the new map."
-  ( []
-      (JavaMapWrapper. (new java.util.HashMap)))
-  ( [^java.util.Map jmap]
+   key,values with a new java.util.HashMap."
+  ([]
+     (JavaMapWrapper. (new java.util.HashMap)))
+  ([^java.util.Map jmap]
       (JavaMapWrapper. jmap))
   ([key val & kvs]
      (apply assoc (wrap-jmap) key val kvs)))
