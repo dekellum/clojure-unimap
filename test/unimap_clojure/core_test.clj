@@ -8,17 +8,28 @@
   (sort (seq coll)))
 
 (deftest test-wrap-jmap
+
   (testing "assoc"
     (let [mw (wrap-jmap)]
       (is (identical? mw (assoc mw :a 1)))
-      (is (= '([:a 1]) (seq mw)))))
+      (is (= '([:a 1]) (seq mw))))
+    (let [mw (wrap-jmap :a 1)]
+      (is (identical? mw (assoc mw :b 2)))
+      (is (= '([:a 1] [:b 2]) (sort-seq mw)))))
+
+  (testing "merge"
+    (let [mw (wrap-jmap)]
+      (is (identical? mw (merge mw {:a 1})))
+      (is (= '([:a 1]) (seq mw)))
+      (is (= '([:a 2]) (seq (merge mw {:a 2}))))
+      (is (= '([:a 2] [:b 3] [:c 4]) (sort-seq (merge mw {:b 3 :c 4}))))))
 
   (testing "dissoc"
     (let [mw (wrap-jmap :a 1 :b 2)]
       (is (identical? mw (dissoc mw :a)))
       (is (= '([:b 2]) (seq mw)))))
 
-  (testing "accessors"
+  (testing "accessors;"
     (let [mw (wrap-jmap :a 1 :b 2)]
       (testing "find"
         (is (= [:a 1] (find mw :a)))
@@ -29,8 +40,17 @@
         (is (= 2  (get mw :b)))
         (is (nil? (get mw :c)))
         (is (= 3  (get mw :c 3))))
+      (testing "contains?"
+        (is (contains? mw :a))
+        (is (not (contains? mw :c))))
+      (testing "keys"
+        (is (= '(:a :b) (sort (keys mw)))))
+      (testing "vals"
+        (is (= '(1 2) (sort (vals mw)))))
+      (testing "map?"
+        (is (map? mw)))
       (testing "seq"
-        (is (= clojure.lang.MapEntry (class (first (seq mw)))))
+        (is (instance? clojure.lang.MapEntry (first (seq mw))))
         (is (= '([:a 1] [:b 2]) (sort-seq mw))))))
 
   (testing "empty"
@@ -46,7 +66,7 @@
     (is (= '([:a 1] [:b 2]) (cons [:a 1] (wrap-jmap :b 2))))))
 
 (deftest test-standard-map
-  "FIXME: Just for confirming comparable behavior"
+  "FIXME: Just for confirming behavior of clojure persistent maps"
   (is (= {:a 1 :b 2} (conj {:a 1} {:b 2})))
   (is (= {:a 1 :b 2} (conj {:a 1} [:b 2])))
   (is (= {:a 1 :b 2} (conj {:a 1} (first (seq {:b 2})))))
