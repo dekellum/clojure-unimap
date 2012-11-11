@@ -39,6 +39,11 @@
         (is (= 2  (get mw :b)))
         (is (nil? (get mw :c)))
         (is (= 3  (get mw :c 3))))
+      (testing "IFn"
+        (is (= 1  (mw :a)))
+        (is (= 2  (mw :b)))
+        (is (nil? (mw :c)))
+        (is (= 3  (mw :c 3))))
       (testing "contains?"
         (is (contains? mw :a))
         (is (not (contains? mw :c))))
@@ -59,13 +64,15 @@
 
   (testing "conj, cons"
     (is (= '([:a 1] [:b 2]) (sort-seq (conj (wrap-jmap :a 1) {:b 2}))))
-    (is (= '([:a 1] [:b 2]) (sort-seq (conj (wrap-jmap :a 1) (first (seq {:b 2}))))))
+    (is (= '([:a 1] [:b 2])
+           (sort-seq (conj (wrap-jmap :a 1) (first (seq {:b 2}))))))
     (is (= '([:a 1] [:b 2]) (sort-seq (conj (wrap-jmap :a 1) [:b 2]))))
     (is (thrown? IllegalArgumentException (conj (wrap-jmap :a 1) 33)))
     (is (= '([:a 1] [:b 2]) (cons [:a 1] (wrap-jmap :b 2))))))
 
 (deftest test-standard-map
   "FIXME: Just for confirming behavior of clojure persistent maps"
+  (is (= 1 ({:a 1} :a)))
   (is (= {:a 1 :b 2} (conj {:a 1} {:b 2})))
   (is (= {:a 1 :b 2} (conj {:a 1} [:b 2])))
   (is (= {:a 1 :b 2} (conj {:a 1} (first (seq {:b 2})))))

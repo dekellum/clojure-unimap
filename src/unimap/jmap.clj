@@ -55,4 +55,10 @@
 
   clojure.lang.Seqable
   (seq [_]
-    (map #(clojure.lang.MapEntry. (.getKey %) (.getValue %)) (seq jmap))))
+    (map #(clojure.lang.MapEntry. (.getKey %) (.getValue %)) (seq jmap)))
+
+  clojure.lang.IFn
+  (invoke [_ key]
+    (.get jmap key))
+  (invoke [_ key not-found]
+    (or (.get jmap key) not-found)))
