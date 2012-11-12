@@ -65,7 +65,7 @@
     (is (= (list [:a 1] [:b 2])
            (sort-seq (conj (wrap-jmap :a 1) (first (seq {:b 2}))))))
     (is (= (list [:a 1] [:b 2]) (sort-seq (conj (wrap-jmap :a 1) [:b 2]))))
-    (is (thrown? IllegalArgumentException (conj (wrap-jmap :a 1) 33)))
+    (is (thrown? ClassCastException (conj (wrap-jmap :a 1) 33)))
     (is (= (list [:a 1] [:b 2]) (cons [:a 1] (wrap-jmap :b 2))))))
 
 (deftest test-standard-map

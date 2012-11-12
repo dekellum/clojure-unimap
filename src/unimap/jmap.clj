@@ -1,19 +1,20 @@
-(ns unimap.jmap)
+(ns unimap.jmap
+  (:import (java.util Map Map$Entry HashMap)))
 
-(deftype JavaMapWrapper [^java.util.Map jmap]) ;forward declare
+(deftype JavaMapWrapper [^Map jmap]) ;forward declare
 
 (defn wrap-jmap
   "Create a mutable but clojure accessable wrapper around a new or
    provided java.util.HashMap. With 2, 4, etc. arguments associates
    key,values with a new java.util.HashMap."
   ([]
-     (JavaMapWrapper. (new java.util.HashMap)))
-  ([^java.util.Map jmap]
+     (JavaMapWrapper. (new HashMap)))
+  ([^Map jmap]
       (JavaMapWrapper. jmap))
   ([key val & kvs]
      (apply assoc (wrap-jmap) key val kvs)))
 
-(deftype JavaMapWrapper [^java.util.Map jmap]
+(deftype JavaMapWrapper [^Map jmap]
 
   clojure.lang.ILookup
   (valAt [_ key]
@@ -43,10 +44,8 @@
   clojure.lang.IPersistentCollection
   (cons [this obj]
     (cond
-     (instance? java.util.Map obj) (.putAll jmap obj)
      (vector? obj) (.put jmap (first obj) (second obj))
-     :else (throw (java.lang.IllegalArgumentException.
-                   (str "Can't cons type " (class obj)))))
+     :else (.putAll jmap ^Map obj))
     this)
   (empty [_]
     (wrap-jmap)) ; FIXME: or clear this map?
@@ -55,7 +54,9 @@
 
   clojure.lang.Seqable
   (seq [_]
-    (map #(clojure.lang.MapEntry. (.getKey %) (.getValue %)) (seq jmap)))
+    (map (fn [^Map$Entry e]
+           (clojure.lang.MapEntry. (.getKey e) (.getValue e)))
+         (seq jmap)))
 
   clojure.lang.IFn
   (invoke [_ key]
