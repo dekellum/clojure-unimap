@@ -4,30 +4,39 @@
 (defn sort-seq [coll]
   (sort (seq coll)))
 
-(deftest test-wrap-jmap
+(deftest test-jmap-wrap
 
   (testing "assoc"
-    (let [mw (wrap-jmap)]
+    (let [mw (jmap-wrap)]
       (is (identical? mw (assoc mw :a 1)))
       (is (= (list [:a 1]) (seq mw))))
-    (let [mw (wrap-jmap :a 1)]
+    (let [mw (jmap-wrap :a 1)]
       (is (identical? mw (assoc mw :b 2)))
       (is (= (list [:a 1] [:b 2]) (sort-seq mw)))))
 
   (testing "merge"
-    (let [mw (wrap-jmap)]
+    (let [mw (jmap-wrap)]
       (is (identical? mw (merge mw {:a 1})))
       (is (= (list [:a 1]) (seq mw)))
       (is (= (list [:a 2]) (seq (merge mw {:a 2}))))
-      (is (= (list [:a 2] [:b 3] [:c 4]) (sort-seq (merge mw {:b 3 :c 4}))))))
+      (is (= (list [:a 2] [:b 3] [:c 4]) (sort-seq (merge mw {:b 3 :c 4})))))
+    (let [mw (jmap-wrap)]
+      (is (identical? mw (merge mw (jmap-wrap :a 1))))
+      (is (= (list [:a 1]) (seq mw)))
+      (is (= (list [:a 2]) (seq (merge mw (jmap-wrap :a 2)))))
+      (is (= (list [:a 2] [:b 3] [:c 4])
+             (sort-seq (merge mw (jmap-wrap :b 3 :c 4)))))))
+
+  (testing "merge from"
+    (is (= (list [:a 1]) (seq (merge {} (jmap-wrap :a 1))))))
 
   (testing "dissoc"
-    (let [mw (wrap-jmap :a 1 :b 2)]
+    (let [mw (jmap-wrap :a 1 :b 2)]
       (is (identical? mw (dissoc mw :a)))
       (is (= (list [:b 2]) (seq mw)))))
 
   (testing "accessors;"
-    (let [mw (wrap-jmap :a 1 :b 2)]
+    (let [mw (jmap-wrap :a 1 :b 2)]
       (testing "find"
         (is (= [:a 1] (find mw :a)))
         (is (= [:b 2] (find mw :b)))
@@ -56,17 +65,17 @@
         (is (= (list [:a 1] [:b 2]) (sort-seq mw))))))
 
   (testing "empty"
-    (let [mw (wrap-jmap :a 1)]
+    (let [mw (jmap-wrap :a 1)]
       (is (= 0 (count (empty mw))))
       (is (= 1 (count mw)))))
 
   (testing "conj, cons"
-    (is (= (list [:a 1] [:b 2]) (sort-seq (conj (wrap-jmap :a 1) {:b 2}))))
+    (is (= (list [:a 1] [:b 2]) (sort-seq (conj (jmap-wrap :a 1) {:b 2}))))
     (is (= (list [:a 1] [:b 2])
-           (sort-seq (conj (wrap-jmap :a 1) (first (seq {:b 2}))))))
-    (is (= (list [:a 1] [:b 2]) (sort-seq (conj (wrap-jmap :a 1) [:b 2]))))
-    (is (thrown? ClassCastException (conj (wrap-jmap :a 1) 33)))
-    (is (= (list [:a 1] [:b 2]) (cons [:a 1] (wrap-jmap :b 2))))))
+           (sort-seq (conj (jmap-wrap :a 1) (first (seq {:b 2}))))))
+    (is (= (list [:a 1] [:b 2]) (sort-seq (conj (jmap-wrap :a 1) [:b 2]))))
+    (is (thrown? ClassCastException (conj (jmap-wrap :a 1) 33)))
+    (is (= (list [:a 1] [:b 2]) (cons [:a 1] (jmap-wrap :b 2))))))
 
 (deftest test-standard-map
   "FIXME: Just for confirming behavior of clojure persistent maps"

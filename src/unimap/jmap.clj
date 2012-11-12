@@ -3,7 +3,7 @@
 
 (deftype JavaMapWrapper [^Map jmap]) ;forward declare
 
-(defn wrap-jmap
+(defn jmap-wrap
   "Create a mutable but clojure accessable wrapper around a new or
    provided java.util.HashMap. With 2, 4, etc. arguments associates
    key,values with a new java.util.HashMap."
@@ -12,15 +12,20 @@
   ([^Map jmap]
       (JavaMapWrapper. jmap))
   ([key val & kvs]
-     (apply assoc (wrap-jmap) key val kvs)))
+     (apply assoc (jmap-wrap) key val kvs)))
+
+(defprotocol JMapWrapper
+  (unwrap [this]))
 
 (deftype JavaMapWrapper [^Map jmap]
+  JMapWrapper
+  (unwrap [_] jmap)
 
   clojure.lang.ILookup
   (valAt [_ key]
     (.get jmap key))
-  (valAt [_ key not-found]
-    (or (.get jmap key) not-found))
+  (valAt [_ key notfound]
+    (or (.get jmap key) notfound))
 
   clojure.lang.IPersistentMap
   (assoc [this key val]
@@ -45,10 +50,11 @@
   (cons [this obj]
     (cond
      (vector? obj) (.put jmap (first obj) (second obj))
-     :else (.putAll jmap ^Map obj))
+     (satisfies? JMapWrapper obj) (.putAll jmap (unwrap obj))
+     :else                        (.putAll jmap obj))
     this)
   (empty [_]
-    (wrap-jmap)) ; FIXME: or clear this map?
+    (jmap-wrap))
   (equiv [_ other]
     (clojure.lang.Util/equiv jmap other))
 
@@ -61,5 +67,5 @@
   clojure.lang.IFn
   (invoke [_ key]
     (.get jmap key))
-  (invoke [_ key not-found]
-    (or (.get jmap key) not-found)))
+  (invoke [_ key notfound]
+    (or (.get jmap key) notfound)))
