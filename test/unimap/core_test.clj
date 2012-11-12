@@ -1,5 +1,6 @@
 (ns unimap.core-test
-  (:import (com.gravitext.htmap UniMap KeySpace Key))
+  (:import (java.util Map Map$Entry)
+           (com.gravitext.htmap UniMap KeySpace Key))
   (:use clojure.test unimap.core))
 
 (unimap-create-key f1)
@@ -8,10 +9,10 @@
 
 (deftest unimap-keys
   (is (instance? Key f1))
-  (is (= java.lang.Object (.valueType f1))))
+  (is (= Object (.valueType ^Key f1))))
 
-;FIXME: Ensure namescape of def? (prn (resolve 'f1))
-;FIXME: Keys accessor (prn (.keys unimap-key-space))
+; FIXME: Ensure namescape of def? (prn (resolve 'f1))
+; FIXME: Keys accessor (prn (.keys unimap-key-space))
 
 (defn sort-seq [coll]
   (sort-by #(.name (.getKey %)) (seq coll)))
@@ -31,7 +32,16 @@
       (is (identical? mw (merge mw {f1 1})))
       (is (= (list [f1 1]) (seq mw)))
       (is (= (list [f1 2]) (seq (merge mw {f1 2}))))
-      (is (= (list [f1 2] [f2 3] [f3 4]) (sort-seq (merge mw {f2 3 f3 4}))))))
+      (is (= (list [f1 2] [f2 3] [f3 4]) (sort-seq (merge mw {f2 3 f3 4})))))
+    (let [mw (unimap-wrap)]
+      (is (identical? mw (merge mw (unimap-wrap f1 1))))
+      (is (= (list [f1 1]) (seq mw)))
+      (is (= (list [f1 2]) (seq (merge mw (unimap-wrap f1 2)))))
+      (is (= (list [f1 2] [f2 3] [f3 4])
+             (sort-seq (merge mw (unimap-wrap f2 3 f3 4)))))))
+
+  (testing "merge from"
+    (is (= (list [f1 1]) (seq (merge {} (unimap-wrap f1 1))))))
 
   (testing "dissoc"
     (let [mw (unimap-wrap f1 1 f2 2)]
@@ -77,5 +87,5 @@
     (is (= (list [f1 1] [f2 2])
            (sort-seq (conj (unimap-wrap f1 1) (first (seq {f2 2}))))))
     (is (= (list [f1 1] [f2 2]) (sort-seq (conj (unimap-wrap f1 1) [f2 2]))))
-    (is (thrown? IllegalArgumentException (conj (unimap-wrap f1 1) 33)))
+    (is (thrown? ClassCastException (conj (unimap-wrap f1 1) 33)))
     (is (= (list [f1 1] [f2 2]) (cons [f1 1] (unimap-wrap f2 2))))))
