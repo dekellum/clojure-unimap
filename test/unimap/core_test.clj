@@ -7,12 +7,11 @@
 (unimap-create-key f2)
 (unimap-create-key f3)
 
-(deftest unimap-keys
+(deftest test-unimap-keys
   (is (instance? Key f1))
-  (is (= Object (.valueType ^Key f1))))
-
-; FIXME: Ensure namescape of def? (prn (resolve 'f1))
-; FIXME: Keys accessor (prn (.keys unimap-key-space))
+  (is (instance? Key unimap.core-test/f1))
+  (is (= Object (.valueType ^Key f1)))
+  (is (= (list f1 f2 f3) (.keys unimap-key-space))))
 
 (defn sort-seq [coll]
   (sort-by #(.name (.getKey %)) (seq coll)))
