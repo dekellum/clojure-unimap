@@ -18,7 +18,8 @@
     (let [mw (jmap-wrap)]
       (is (identical? mw (merge mw {:a 1})))
       (is (= (list [:a 1]) (seq mw)))
-      (is (= (list [:a 2]) (seq (merge mw {:a 2}))))
+      (is (identical? mw (merge mw {:a 2})))
+      (is (= (list [:a 2]) (seq mw)))
       (is (= (list [:a 2] [:b 3] [:c 4]) (sort-seq (merge mw {:b 3 :c 4})))))
     (let [mw (jmap-wrap)]
       (is (identical? mw (merge mw (jmap-wrap :a 1))))

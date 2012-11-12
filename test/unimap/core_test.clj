@@ -31,7 +31,8 @@
     (let [mw (unimap-wrap)]
       (is (identical? mw (merge mw {f1 1})))
       (is (= (list [f1 1]) (seq mw)))
-      (is (= (list [f1 2]) (seq (merge mw {f1 2}))))
+      (is (identical? mw (merge mw {f1 2})))
+      (is (= (list [f1 2]) (seq mw)))
       (is (= (list [f1 2] [f2 3] [f3 4]) (sort-seq (merge mw {f2 3 f3 4})))))
     (let [mw (unimap-wrap)]
       (is (identical? mw (merge mw (unimap-wrap f1 1))))
