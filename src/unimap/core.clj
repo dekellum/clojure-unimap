@@ -3,7 +3,7 @@
            (com.gravitext.htmap KeySpace Key ArrayHTMap UniMap)))
 
 (def
-  ^{:tag KeySpace}
+  ^KeySpace
   unimap-key-space UniMap/KEY_SPACE)
 
 (defmacro unimap-create-key
@@ -25,11 +25,11 @@
   ([key val & kvs]
      (apply assoc (unimap-wrap) key val kvs)))
 
-(defprotocol Wrapper
+(defprotocol UMapWrapper
   (unwrap [this]))
 
 (deftype UniMapWrapper [^UniMap umap]
-  Wrapper
+  UMapWrapper
   (unwrap [_] umap)
 
   clojure.lang.ILookup
@@ -61,9 +61,9 @@
   (cons [this obj]
     (cond
      (vector? obj) (.set umap (first obj) (second obj))
-     (satisfies? Wrapper obj)   (.putAll umap ^ArrayHTMap (unwrap obj))
-     (instance? ArrayHTMap obj) (.putAll umap ^ArrayHTMap obj)
-     :else (.putAll umap ^Map obj))
+     (satisfies? UMapWrapper obj) (.putAll umap ^ArrayHTMap (unwrap obj))
+     (instance? ArrayHTMap obj)   (.putAll umap ^ArrayHTMap obj)
+     :else                        (.putAll umap ^Map obj))
     this)
   (empty [_]
     (unimap-wrap)) ; FIXME: or clear this map?
