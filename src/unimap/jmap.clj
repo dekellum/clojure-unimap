@@ -1,12 +1,26 @@
+; Copyright (c) 2012 David Kellum
+;
+; Licensed under the Apache License, Version 2.0 (the "License"); you
+; may not use this file except in compliance with the License.  You may
+; obtain a copy of the License at
+;
+;    http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+; implied.  See the License for the specific language governing
+; permissions and limitations under the License.
+
 (ns unimap.jmap
   (:import (java.util Map Map$Entry HashMap)))
 
 (deftype JavaMapWrapper [^Map jmap]) ;forward declare
 
 (defn jmap-wrap
-  "Create a mutable but clojure accessable wrapper around a new or
-   provided java.util.HashMap. With 2, 4, etc. arguments associates
-   key,values with a new java.util.HashMap."
+  "Create a mutable but clojure accessable wrapper around a new
+  java.util.HashMap or any provided java.util.Map. With 2, 4,
+  etc. arguments associates key,values with a new java.util.HashMap."
   ([]
      (JavaMapWrapper. (new HashMap)))
   ([^Map jmap]
