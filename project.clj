@@ -5,4 +5,5 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [com.gravitext/gravitext-util "1.7.0" ]]
-  :aot [unimap.jmap])
+  :aot [unimap.jmap unimap.core]
+  :warn-on-reflection true)

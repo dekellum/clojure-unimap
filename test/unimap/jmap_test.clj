@@ -1,5 +1,3 @@
-(set! *warn-on-reflection* true)
-
 (ns unimap.jmap-test
   (:use clojure.test unimap.jmap))
 
@@ -11,22 +9,22 @@
   (testing "assoc"
     (let [mw (wrap-jmap)]
       (is (identical? mw (assoc mw :a 1)))
-      (is (= '([:a 1]) (seq mw))))
+      (is (= (list [:a 1]) (seq mw))))
     (let [mw (wrap-jmap :a 1)]
       (is (identical? mw (assoc mw :b 2)))
-      (is (= '([:a 1] [:b 2]) (sort-seq mw)))))
+      (is (= (list [:a 1] [:b 2]) (sort-seq mw)))))
 
   (testing "merge"
     (let [mw (wrap-jmap)]
       (is (identical? mw (merge mw {:a 1})))
-      (is (= '([:a 1]) (seq mw)))
-      (is (= '([:a 2]) (seq (merge mw {:a 2}))))
-      (is (= '([:a 2] [:b 3] [:c 4]) (sort-seq (merge mw {:b 3 :c 4}))))))
+      (is (= (list [:a 1]) (seq mw)))
+      (is (= (list [:a 2]) (seq (merge mw {:a 2}))))
+      (is (= (list [:a 2] [:b 3] [:c 4]) (sort-seq (merge mw {:b 3 :c 4}))))))
 
   (testing "dissoc"
     (let [mw (wrap-jmap :a 1 :b 2)]
       (is (identical? mw (dissoc mw :a)))
-      (is (= '([:b 2]) (seq mw)))))
+      (is (= (list [:b 2]) (seq mw)))))
 
   (testing "accessors;"
     (let [mw (wrap-jmap :a 1 :b 2)]
@@ -55,7 +53,7 @@
         (is (map? mw)))
       (testing "seq"
         (is (instance? clojure.lang.MapEntry (first (seq mw))))
-        (is (= '([:a 1] [:b 2]) (sort-seq mw))))))
+        (is (= (list [:a 1] [:b 2]) (sort-seq mw))))))
 
   (testing "empty"
     (let [mw (wrap-jmap :a 1)]
@@ -63,12 +61,12 @@
       (is (= 1 (count mw)))))
 
   (testing "conj, cons"
-    (is (= '([:a 1] [:b 2]) (sort-seq (conj (wrap-jmap :a 1) {:b 2}))))
-    (is (= '([:a 1] [:b 2])
+    (is (= (list [:a 1] [:b 2]) (sort-seq (conj (wrap-jmap :a 1) {:b 2}))))
+    (is (= (list [:a 1] [:b 2])
            (sort-seq (conj (wrap-jmap :a 1) (first (seq {:b 2}))))))
-    (is (= '([:a 1] [:b 2]) (sort-seq (conj (wrap-jmap :a 1) [:b 2]))))
+    (is (= (list [:a 1] [:b 2]) (sort-seq (conj (wrap-jmap :a 1) [:b 2]))))
     (is (thrown? IllegalArgumentException (conj (wrap-jmap :a 1) 33)))
-    (is (= '([:a 1] [:b 2]) (cons [:a 1] (wrap-jmap :b 2))))))
+    (is (= (list [:a 1] [:b 2]) (cons [:a 1] (wrap-jmap :b 2))))))
 
 (deftest test-standard-map
   "FIXME: Just for confirming behavior of clojure persistent maps"
@@ -76,4 +74,4 @@
   (is (= {:a 1 :b 2} (conj {:a 1} {:b 2})))
   (is (= {:a 1 :b 2} (conj {:a 1} [:b 2])))
   (is (= {:a 1 :b 2} (conj {:a 1} (first (seq {:b 2})))))
-  (is (= '([:a 1] [:b 2]) (cons [:a 1] {:b 2}))))
+  (is (= (list [:a 1] [:b 2]) (cons [:a 1] {:b 2}))))
