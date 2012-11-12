@@ -36,7 +36,8 @@
   (valAt [_ key]
     (.get tmap key))
   (valAt [_ key notfound]
-    (or (.get tmap key) notfound))
+    (let [v (.get tmap key)]
+      (if (not (nil? v)) v notfound)))
 
   clojure.lang.IPersistentMap
   (assoc [this key val]
@@ -50,8 +51,9 @@
   (containsKey [_ key]
     (.containsKey tmap key))
   (entryAt [_ key]
-    (if-let [v (.get tmap key)]
-      (clojure.lang.MapEntry. key v)))
+    (let [v (.get tmap key)]
+      (if (not (nil? v))
+        (clojure.lang.MapEntry. key v))))
 
   clojure.lang.Counted
   (count [_]
@@ -80,4 +82,5 @@
   (invoke [_ key]
     (.get tmap key))
   (invoke [_ key notfound]
-    (or (.get tmap key) notfound)))
+    (let [v (.get tmap key)]
+      (if (not (nil? v)) v notfound))))
