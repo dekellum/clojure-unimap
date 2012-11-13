@@ -35,7 +35,7 @@
       (is (= (list [f1 1]) (seq mw))))
     (let [mw (unimap-wrap f1 1)]
       (is (identical? mw (assoc mw f2 2)))
-      (is (= (set [[f1 1] [f2 2]]) (set mw)))))
+      (is (= #{[f1 1] [f2 2]} (set mw)))))
 
   (testing "merge"
     (let [mw (unimap-wrap)]
@@ -43,12 +43,12 @@
       (is (= (list [f1 1]) (seq mw)))
       (is (identical? mw (merge mw {f1 2})))
       (is (= (list [f1 2]) (seq mw)))
-      (is (= (set [[f1 2] [f2 3] [f3 4]]) (set (merge mw {f2 3 f3 4})))))
+      (is (= #{[f1 2] [f2 3] [f3 4]} (set (merge mw {f2 3 f3 4})))))
     (let [mw (unimap-wrap)]
       (is (identical? mw (merge mw (unimap-wrap f1 1))))
       (is (= (list [f1 1]) (seq mw)))
       (is (= (list [f1 2]) (seq (merge mw (unimap-wrap f1 2)))))
-      (is (= (set [[f1 2] [f2 3] [f3 4]])
+      (is (= #{[f1 2] [f2 3] [f3 4]}
              (set (merge mw (unimap-wrap f2 3 f3 4)))))))
 
   (testing "merge from"
@@ -81,14 +81,14 @@
         (is (contains? mw f1))
         (is (not (contains? mw f3))))
       (testing "keys"
-        (is (= (set [f1 f2]) (set (keys mw)))))
+        (is (= #{f1 f2} (set (keys mw)))))
       (testing "vals"
-        (is (= (set [1 false]) (set (vals mw)))))
+        (is (= #{1 false} (set (vals mw)))))
       (testing "map?"
         (is (map? mw)))
       (testing "seq"
         (is (instance? clojure.lang.MapEntry (first (seq mw))))
-        (is (= (set [[f1 1] [f2 false]]) (set (seq mw)))))))
+        (is (= #{[f1 1] [f2 false]} (set (seq mw)))))))
 
   (testing "empty"
     (let [mw (unimap-wrap f1 1)]
@@ -96,9 +96,9 @@
       (is (= 1 (count mw)))))
 
   (testing "conj, cons"
-    (is (= (set [[f1 1] [f2 2]]) (set (conj (unimap-wrap f1 1) {f2 2}))))
-    (is (= (set [[f1 1] [f2 2]])
+    (is (= #{[f1 1] [f2 2]} (set (conj (unimap-wrap f1 1) {f2 2}))))
+    (is (= #{[f1 1] [f2 2]}
            (set (conj (unimap-wrap f1 1) (first (seq {f2 2}))))))
-    (is (= (set [[f1 1] [f2 2]]) (set (conj (unimap-wrap f1 1) [f2 2]))))
+    (is (= #{[f1 1] [f2 2]} (set (conj (unimap-wrap f1 1) [f2 2]))))
     (is (thrown? ClassCastException (conj (unimap-wrap f1 1) 33)))
     (is (= (list [f1 1] [f2 2]) (cons [f1 1] (unimap-wrap f2 2))))))

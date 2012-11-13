@@ -23,7 +23,7 @@
       (is (= (list [:a 1]) (seq mw))))
     (let [mw (jmap-wrap :a 1)]
       (is (identical? mw (assoc mw :b 2)))
-      (is (= (set [[:a 1] [:b 2]]) (set mw)))))
+      (is (= #{[:a 1] [:b 2]} (set mw)))))
 
   (testing "merge"
     (let [mw (jmap-wrap)]
@@ -31,12 +31,12 @@
       (is (= (list [:a 1]) (seq mw)))
       (is (identical? mw (merge mw {:a 2})))
       (is (= (list [:a 2]) (seq mw)))
-      (is (= (set [[:a 2] [:b 3] [:c 4]]) (set (merge mw {:b 3 :c 4})))))
+      (is (= #{[:a 2] [:b 3] [:c 4]} (set (merge mw {:b 3 :c 4})))))
     (let [mw (jmap-wrap)]
       (is (identical? mw (merge mw (jmap-wrap :a 1))))
       (is (= (list [:a 1]) (seq mw)))
       (is (= (list [:a 2]) (seq (merge mw (jmap-wrap :a 2)))))
-      (is (= (set [[:a 2] [:b 3] [:c 4]])
+      (is (= #{[:a 2] [:b 3] [:c 4]}
              (set (merge mw (jmap-wrap :b 3 :c 4)))))))
 
   (testing "merge from"
@@ -69,14 +69,14 @@
         (is (contains? mw :a))
         (is (not (contains? mw :c))))
       (testing "keys"
-        (is (= (set [:a :b]) (set (keys mw)))))
+        (is (= #{:a :b} (set (keys mw)))))
       (testing "vals"
-        (is (= (set [1 false]) (set (vals mw)))))
+        (is (= #{1 false} (set (vals mw)))))
       (testing "map?"
         (is (map? mw)))
       (testing "seq"
         (is (instance? clojure.lang.MapEntry (first (seq mw))))
-        (is (= (set [[:a 1] [:b false]]) (set (seq mw)))))))
+        (is (= #{[:a 1] [:b false]} (set (seq mw)))))))
 
   (testing "empty"
     (let [mw (jmap-wrap :a 1)]
@@ -84,10 +84,10 @@
       (is (= 1 (count mw)))))
 
   (testing "conj, cons"
-    (is (= (set [[:a 1] [:b 2]]) (set (conj (jmap-wrap :a 1) {:b 2}))))
-    (is (= (set [[:a 1] [:b 2]])
+    (is (= #{[:a 1] [:b 2]} (set (conj (jmap-wrap :a 1) {:b 2}))))
+    (is (= #{[:a 1] [:b 2]}
            (set (conj (jmap-wrap :a 1) (first (seq {:b 2}))))))
-    (is (= (set [[:a 1] [:b 2]]) (set (conj (jmap-wrap :a 1) [:b 2]))))
+    (is (= #{[:a 1] [:b 2]} (set (conj (jmap-wrap :a 1) [:b 2]))))
     (is (thrown? ClassCastException (conj (jmap-wrap :a 1) 33)))
     (is (= (list [:a 1] [:b 2]) (cons [:a 1] (jmap-wrap :b 2))))))
 
