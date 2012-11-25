@@ -17,17 +17,17 @@
            (com.gravitext.htmap UniMap KeySpace Key))
   (:use clojure.test unimap.core))
 
-(unimap-create-key f1)
-(unimap-create-key f2)
-(unimap-create-key f3)
+(defkey f1)
+(defkey f2)
+(defkey f3)
 
-(deftest test-unimap-keys
+(deftest test-keys
   (is (instance? Key f1))
   (is (instance? Key unimap.core-test/f1))
   (is (= Object (.valueType ^Key f1)))
   (is (= (list f1 f2 f3) (.keys unimap-key-space))))
 
-(deftest test-unimap-wrap
+(deftest test-wrap
 
   (testing "assoc"
     (let [mw (unimap-wrap)]

@@ -20,12 +20,12 @@
   "Access to UniMap.KEY_SPACE"
   UniMap/KEY_SPACE)
 
-(defmacro unimap-create-key
+(defmacro defkey
   "Create a UniMap.KEY_SPACE Key with the same name as the provided
   symbol and binds it to a global var of the same name in the current
   namespace. An optional (value) type may also be passed (defaults to
   Object)."
-  ([sym] `(unimap-create-key ~sym Object))
+  ([sym] `(defkey ~sym Object))
   ([sym type]
      `(def ^Key ~sym
        (.createGeneric unimap-key-space (name '~sym) ~type))))
