@@ -87,8 +87,11 @@
     this)
   (empty [_]
     (unimap-wrap)) ;New empty UniMap
-  (equiv [_ other]
-    (clojure.lang.Util/equiv tmap other))
+  (equiv [_ omap]
+    (if (satisfies? UMapWrapper omap)
+      (.equals tmap (unwrap omap))
+      (.equals tmap omap)))
+
 
   clojure.lang.Seqable
   (seq [_]
