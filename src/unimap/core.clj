@@ -32,7 +32,7 @@
 
 (deftype UniMapWrapper [umap]) ;forward declare
 
-(defn unimap-wrap
+(defn ^UniMapWrapper unimap-wrap
   "Create a mutable but clojure accessable wrapper around a new UniMap
   or any provided ArrayHTMap. With 2, 4, etc. arguments associates
   key,values with a new UniMap."
