@@ -30,7 +30,7 @@
      `(def ^Key ~sym
        (.createGeneric unimap-key-space (name '~sym) ~type))))
 
-(deftype UniMapWrapper [umap]) ;forward declare
+(deftype UniMapWrapper [^ArrayHTMap tmap]) ;forward declare
 
 (defn ^UniMapWrapper unimap-wrap
   "Create a mutable but clojure accessable wrapper around a new UniMap
@@ -104,4 +104,37 @@
     (.get tmap key))
   (invoke [_ key notfound]
     (let [v (.get tmap key)]
-      (if-not (nil? v) v notfound))))
+      (if-not (nil? v) v notfound)))
+
+  java.util.Map
+  (remove [_ key]
+    (.remove tmap key))
+  (get [_ key]
+    (.get tmap key))
+  (put [_ key value]
+    (.put tmap key value))
+  (equals [_ omap]
+    (if (satisfies? UMapWrapper omap)
+      (.equals tmap (unwrap omap))
+      (.equals tmap omap)))
+  (values [_]
+    (.values tmap))
+  (hashCode [_]
+    (.hashCode tmap))
+  (clear [_]
+    (.clear tmap))
+  (isEmpty [_]
+    (.isEmpty tmap))
+  (size [_]
+    (.size tmap))
+  (entrySet [_]
+    (.entrySet tmap))
+  (putAll [_ omap]
+    (cond
+     (satisfies? UMapWrapper omap) (.putAll tmap ^ArrayHTMap (unwrap omap))
+     (instance? ArrayHTMap omap)   (.putAll tmap ^ArrayHTMap omap)
+     :else                         (.putAll tmap ^Map omap)))
+  (keySet [_]
+    (.keySet tmap))
+  (containsValue [_ value]
+    (.containsValue tmap value)))

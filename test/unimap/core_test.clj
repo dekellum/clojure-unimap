@@ -14,12 +14,22 @@
 
 (ns unimap.core-test
   (:import (java.util Map Map$Entry)
-           (com.gravitext.htmap UniMap KeySpace Key))
+           (com.gravitext.htmap UniMap KeySpace Key)
+           (unimap.sample Keys))
   (:use clojure.test unimap.core))
 
 (defkey f1)
 (defkey f2)
 (defkey f3)
+
+(defn- jmap-assoc [^Map m & [k v & more]]
+  (.put m k v)
+  (if more (recur m more) m))
+
+(defn ^Map java-hash-map
+  ([] (new java.util.HashMap))
+  ([& kvs]
+     (apply jmap-assoc (java-hash-map) kvs)))
 
 (deftest test-keys
   (is (instance? Key f1))
@@ -28,7 +38,6 @@
   (is (= (list f1 f2 f3) (.keys unimap-key-space))))
 
 (deftest test-wrap
-
   (testing "assoc"
     (let [mw (unimap-wrap)]
       (is (identical? mw (assoc mw f1 1)))
@@ -86,6 +95,16 @@
         (is (= #{1 false} (set (vals mw)))))
       (testing "map?"
         (is (map? mw)))
+      (testing "= equality"
+        (is (= (unimap-wrap f1 1 f2 false) mw))
+        (is (= (java-hash-map f1 1 f2 false) mw))
+        (is (= mw (java-hash-map f1 1 f2 false)))
+        (is (= mw {f1 1 f2 false})))
+      (testing "equals"
+        (is (.equals (unimap-wrap f1 1 f2 false) mw))
+        (is (.equals (java-hash-map f1 1 f2 false) mw))
+        (is (.equals mw (java-hash-map f1 1 f2 false)))
+        (is (.equals ^Map (hash-map f1 1 f2 false) mw)))
       (testing "seq"
         (is (instance? clojure.lang.MapEntry (first (seq mw))))
         (is (= #{[f1 1] [f2 false]} (set (seq mw)))))))
