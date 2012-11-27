@@ -16,7 +16,7 @@
   (:import (java.util Map Map$Entry)
            (com.gravitext.htmap UniMap KeySpace Key)
            (unimap.sample Keys))
-  (:use clojure.test unimap.core))
+  (:use clojure.set clojure.test unimap.core))
 
 (defkey f1)
 (defkey f2)
@@ -31,11 +31,14 @@
   ([& kvs]
      (apply jmap-assoc (java-hash-map) kvs)))
 
+(defn contains-all? [s1 s2]
+  (= (intersection (set s1) s2) s2))
+
 (deftest test-keys
   (is (instance? Key f1))
   (is (instance? Key unimap.core-test/f1))
   (is (= Object (.valueType ^Key f1)))
-  (is (= (list f1 f2 f3) (.keys unimap-key-space))))
+  (is (contains-all? (.keys unimap-key-space) #{f1 f2 f3})))
 
 (deftest test-wrap
   (testing "assoc"

@@ -92,7 +92,6 @@
       (.equals tmap (unwrap omap))
       (.equals tmap omap)))
 
-
   clojure.lang.Seqable
   (seq [_]
     (map (fn [^Map$Entry e]
