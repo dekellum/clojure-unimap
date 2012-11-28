@@ -27,7 +27,7 @@
   Object)."
   ([sym] `(defkey ~sym Object))
   ([sym type]
-     `(def ^Key ~sym
+     `(def ^:const ^Key ~sym
        (.createGeneric unimap-key-space (name '~sym) ~type))))
 
 (defmacro import-keys []
@@ -37,7 +37,8 @@
               (map (fn [^Key k]
                      (vec [(symbol (.name k)) k])))
               (map (fn [[sym key]]
-                     `(def ^Key ~sym ~key))))))
+                     `(def ^:const ^Key ~sym ~key))))
+       nil))
 
 (deftype UniMapWrapper [^ArrayHTMap tmap]) ;forward declare
 
