@@ -13,14 +13,20 @@
 ; permissions and limitations under the License.
 
 (ns unimap.core-test
-  (:import (java.util Map Map$Entry)
+  (:import (java.util Date Map Map$Entry)
            (com.gravitext.htmap UniMap KeySpace Key)
            (unimap.sample Keys))
-  (:use clojure.set clojure.test unimap.core))
+  (:use (clojure [set :only (intersection)]
+                 test)
+         unimap.core)
+  (:refer-clojure :rename {type ctype}))
 
-(defkey f1)
+(defkey f1)  ; Object type
 (defkey f2)
 (defkey f3)
+
+(import-keys) ; def all keys, re-def f1-3 identically and all from
+              ; java sample Keys
 
 (defn- jmap-assoc [^Map m & [k v & more]]
   (.put m k v)
@@ -39,6 +45,11 @@
   (is (instance? Key unimap.core-test/f1))
   (is (= Object (.valueType ^Key f1)))
   (is (contains-all? (.keys unimap-key-space) #{f1 f2 f3})))
+
+
+(deftest test-import
+  (is (instance? Key priority))
+  (is (= Float (.valueType ^Key priority))))
 
 (deftest test-wrap
   (testing "assoc"
@@ -124,3 +135,24 @@
     (is (= #{[f1 1] [f2 2]} (set (conj (unimap-wrap f1 1) [f2 2]))))
     (is (thrown? ClassCastException (conj (unimap-wrap f1 1) 33)))
     (is (= (list [f1 1] [f2 2]) (cons [f1 1] (unimap-wrap f2 2))))))
+
+(deftest test-java-keys
+  (testing "assoc"
+    (let [now (Date.),
+          mw (unimap-wrap
+              type "PAGE"
+              status (int 200)
+              priority (float 33.3)
+              next_visit_after now )
+          ref (unimap-wrap
+               type "PAGE"
+               status (int (int 300))
+               referer (unwrap mw))]
+      (assoc mw references [ref])
+      (is (= "PAGE" (mw type)))
+      (is (== 200 (mw status)))
+      (is (= (float 33.3) (mw priority)))
+      (is (identical? now (mw next_visit_after)))
+      (is (= mw (ref referer)))
+      (is (== 300 (ref status)))
+      (is (= ref (first (mw references)))))))

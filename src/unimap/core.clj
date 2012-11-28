@@ -30,6 +30,15 @@
      `(def ^Key ~sym
        (.createGeneric unimap-key-space (name '~sym) ~type))))
 
+(defmacro import-keys []
+  "Import all defined UniMap keys into the current namespace as
+  variables matching their (lower-case by convention) names."
+  `(do ~@(->> (.keys unimap-key-space)
+              (map (fn [^Key k]
+                     (vec [(symbol (.name k)) k])))
+              (map (fn [[sym key]]
+                     `(def ^Key ~sym ~key))))))
+
 (deftype UniMapWrapper [^ArrayHTMap tmap]) ;forward declare
 
 (defn ^UniMapWrapper unimap-wrap
