@@ -46,7 +46,6 @@
   (is (= Object (.valueType ^Key f1)))
   (is (contains-all? (.keys unimap-key-space) #{f1 f2 f3})))
 
-
 (deftest test-import
   (is (instance? Key priority))
   (is (= Float (.valueType ^Key priority))))
@@ -141,17 +140,18 @@
     (let [now (Date.),
           mw (unimap-wrap
               type "PAGE"
-              status (int 200)
-              priority (float 33.3)
-              next_visit_after now )
+              status 200
+              priority 33.3
+              next_visit_after now)
           ref (unimap-wrap
                type "PAGE"
-               status (int (int 300))
-               referer (unwrap mw))]
+               status 300
+               referer mw)]
       (assoc mw references [ref])
       (is (= "PAGE" (mw type)))
       (is (== 200 (mw status)))
       (is (= (float 33.3) (mw priority)))
+      (is (= now (mw next_visit_after)))
       (is (identical? now (mw next_visit_after)))
       (is (= mw (ref referer)))
       (is (== 300 (ref status)))

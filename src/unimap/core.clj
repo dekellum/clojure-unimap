@@ -54,23 +54,43 @@
      (apply assoc (unimap-wrap) key val kvs)))
 
 (defprotocol UMapWrapper
-  (unwrap [this]))
+  "General wrapper capabilities"
+  (unwrap [this]
+    "Return the wrapped ArrayHTMap object")
+  (trans-get [this ^Key key]
+    "Get key from wrapped map, applying clojure-specific
+    transformations to value.")
+  (trans-set [this ^Key key value]
+    "Set key to value on wrapped map, after possibly tranforming the
+    value to the valueType of key."))
 
 (deftype UniMapWrapper [^ArrayHTMap tmap]
   UMapWrapper
   (unwrap [_] tmap)
+  (trans-get [_ key]
+    (let [vt (.valueType ^Key key)]
+      (cond
+       (.isAssignableFrom ArrayHTMap vt) (unimap-wrap (.get tmap key))
+       :else                             (.get tmap key))))
+  (trans-set [this key val]
+    (let [vt (.valueType ^Key key)]
+      (cond
+       (satisfies? UMapWrapper val) (.set tmap key (unwrap val))
+       (= Float vt)                 (.set tmap key (float val))
+       (= Integer vt)               (.set tmap key (int val))
+       :else                        (.set tmap key val))
+      this))
 
   clojure.lang.ILookup
-  (valAt [_ key]
-    (.get tmap key))
-  (valAt [_ key notfound]
-    (let [v (.get tmap key)]
+  (valAt [this key]
+    (trans-get this key))
+  (valAt [this key notfound]
+    (let [v (trans-get this key)]
       (if-not (nil? v) v notfound)))
 
   clojure.lang.IPersistentMap
   (assoc [this key val]
-    (.set tmap key val)
-    this)
+    (trans-set this key val))
   (without [this key]
     (.remove tmap key)
     this)
@@ -78,8 +98,8 @@
   clojure.lang.Associative
   (containsKey [_ key]
     (.containsKey tmap key))
-  (entryAt [_ key]
-    (let [v (.get tmap key)]
+  (entryAt [this key]
+    (let [v (trans-get this key)]
       (if-not (nil? v)
         (clojure.lang.MapEntry. key v))))
 
@@ -90,10 +110,11 @@
   clojure.lang.IPersistentCollection
   (cons [this obj]
     (cond
-     (vector? obj) (.set tmap (first obj) (second obj))
+     (vector? obj)                (trans-set this (first obj) (second obj))
      (satisfies? UMapWrapper obj) (.putAll tmap ^ArrayHTMap (unwrap obj))
      (instance? ArrayHTMap obj)   (.putAll tmap ^ArrayHTMap obj)
      :else                        (.putAll tmap ^Map obj))
+                                  ; FIXME: trans-set here?
     this)
   (empty [_]
     (unimap-wrap)) ;New empty UniMap
@@ -109,19 +130,19 @@
          (seq tmap)))
 
   clojure.lang.IFn
-  (invoke [_ key]
-    (.get tmap key))
-  (invoke [_ key notfound]
-    (let [v (.get tmap key)]
+  (invoke [this key]
+    (trans-get this key))
+  (invoke [this key notfound]
+    (let [v (trans-get this key)]
       (if-not (nil? v) v notfound)))
 
   java.util.Map
   (remove [_ key]
     (.remove tmap key))
-  (get [_ key]
-    (.get tmap key))
-  (put [_ key value]
-    (.put tmap key value))
+  (get [this key]
+    (trans-get this key))
+  (put [this key val]
+    (trans-set this key val))
   (equals [_ omap]
     (if (satisfies? UMapWrapper omap)
       (.equals tmap (unwrap omap))
@@ -145,5 +166,5 @@
      :else                         (.putAll tmap ^Map omap)))
   (keySet [_]
     (.keySet tmap))
-  (containsValue [_ value]
-    (.containsValue tmap value)))
+  (containsValue [_ val]
+    (.containsValue tmap val)))
