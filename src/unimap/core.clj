@@ -35,7 +35,7 @@
   variables matching their (lower-case by convention) names."
   `(do ~@(->> (.keys unimap-key-space)
               (map (fn [^Key k]
-                     (vec [(symbol (.name k)) k])))
+                     [(symbol (.name k)) k]))
               (map (fn [[sym key]]
                      `(def ^:const ^Key ~sym ~key))))
        nil))
